@@ -144,7 +144,7 @@ deploy_init() {
     log_info "========== 部署完成 =========="
     echo ""
     echo "  访问地址: http://10.225.138.183"
-    echo "  API 文档: http://10.225.138.183:8000/docs"
+    echo "  API 文档: http://10.225.138.183:8010/docs"
     echo "  默认账号: 见 init.sql 中的初始化用户"
     echo ""
     echo "  配置域名访问:"

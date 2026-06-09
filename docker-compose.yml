@@ -17,7 +17,7 @@ services:
       - REDIS_HOST=${REDIS_HOST:-10.225.138.183}
       - DEBUG=false
     ports:
-      - "8000:8000"
+      - "8010:8000"
     networks:
       - YWAgentPlatform-net
 
