@@ -1,6 +1,6 @@
 import axios, { type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { message } from 'ant-design-vue'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, getRefreshToken, setToken, setRefreshToken, removeToken } from '@/utils/auth'
 import router from '@/router'
 
 const request = axios.create({
@@ -54,9 +54,16 @@ request.interceptors.response.use(
       isRefreshing = true
 
       try {
-        const res: any = await request.post('/auth/refresh', { refresh_token: getToken() })
+        const refreshToken = getRefreshToken()
+        if (!refreshToken) {
+          throw new Error('Missing refresh token')
+        }
+
+        const res: any = await request.post('/auth/refresh', { refresh_token: refreshToken })
         const newToken = res.access_token
+        const newRefreshToken = res.refresh_token
         setToken(newToken)
+        setRefreshToken(newRefreshToken)
         onRefreshed(newToken)
         originalRequest.headers.Authorization = `Bearer ${newToken}`
         return request(originalRequest)
