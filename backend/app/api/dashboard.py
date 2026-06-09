@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +10,7 @@ from app.models.user import User
 from app.models.role import Role
 from app.models.audit_log import AuditLog
 from app.api.deps import get_current_user
+from app.utils.datetime import now_cn
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
@@ -33,8 +34,9 @@ async def get_dashboard_stats(
     total_roles = roles_result.scalar() or 0
 
     # Today's operations (audit logs created today)
-    today_start = datetime.combine(date.today(), datetime.min.time())
-    today_end = datetime.combine(date.today(), datetime.max.time())
+    today = now_cn().date()
+    today_start = datetime.combine(today, datetime.min.time())
+    today_end = datetime.combine(today, datetime.max.time())
     today_ops_result = await db.execute(
         select(func.count(AuditLog.id)).where(
             AuditLog.created_at >= today_start,

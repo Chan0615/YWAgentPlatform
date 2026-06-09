@@ -8,6 +8,7 @@ export interface RoleRecord {
   permissions: Array<{ id: number; name: string; code: string; type: string }>
   status: number
   created_at: string
+  updated_at: string
 }
 
 export interface RoleListParams {

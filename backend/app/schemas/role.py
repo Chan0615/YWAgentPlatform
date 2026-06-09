@@ -34,6 +34,7 @@ class RoleResponse(BaseModel):
     description: Optional[str] = None
     status: int
     created_at: datetime
+    updated_at: datetime
     permissions: List[PermissionBasicInRole] = []
 
     class Config:

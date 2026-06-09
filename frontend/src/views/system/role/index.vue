@@ -43,6 +43,9 @@
           <template v-if="column.dataIndex === 'created_at'">
             {{ formatTime(record.created_at) }}
           </template>
+          <template v-if="column.dataIndex === 'updated_at'">
+            {{ formatTime(record.updated_at) }}
+          </template>
           <template v-if="column.dataIndex === 'actions'">
             <a-space>
               <a-button
@@ -213,6 +216,7 @@ const columns = [
   { title: '描述', dataIndex: 'description', ellipsis: true },
   { title: '状态', dataIndex: 'status', width: 100 },
   { title: '创建时间', dataIndex: 'created_at', width: 180 },
+  { title: '更新时间', dataIndex: 'updated_at', width: 180 },
   { title: '操作', dataIndex: 'actions', width: 240, fixed: 'right' as const },
 ]
 

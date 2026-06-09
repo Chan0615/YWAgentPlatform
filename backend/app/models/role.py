@@ -24,6 +24,9 @@ class Role(Base):
     description = Column(String(256), nullable=True, comment="Role description")
     status = Column(SmallInteger, nullable=False, default=1, comment="1=active, 0=disabled")
     created_at = Column(DateTime, nullable=False, default=now_cn, comment="Created timestamp")
+    updated_at = Column(
+        DateTime, nullable=False, default=now_cn, onupdate=now_cn, comment="Updated timestamp"
+    )
 
     # Relationships
     users = relationship("User", secondary="user_roles", back_populates="roles", lazy="selectin")

@@ -53,6 +53,7 @@ async def list_roles(
                 description=r.description,
                 status=r.status,
                 created_at=r.created_at,
+                updated_at=r.updated_at,
                 permissions=[
                     PermissionBasicInRole(id=p.id, name=p.name, code=p.code, type=p.type)
                     for p in r.permissions
@@ -84,6 +85,7 @@ async def get_role(
         description=role.description,
         status=role.status,
         created_at=role.created_at,
+        updated_at=role.updated_at,
         permissions=[
             PermissionBasicInRole(id=p.id, name=p.name, code=p.code, type=p.type)
             for p in role.permissions
@@ -125,6 +127,7 @@ async def create_role(
         description=role.description,
         status=role.status,
         created_at=role.created_at,
+        updated_at=role.updated_at,
         permissions=[],
     )
 
@@ -163,6 +166,7 @@ async def update_role(
         description=role.description,
         status=role.status,
         created_at=role.created_at,
+        updated_at=role.updated_at,
         permissions=[
             PermissionBasicInRole(id=p.id, name=p.name, code=p.code, type=p.type)
             for p in role.permissions
@@ -225,6 +229,7 @@ async def assign_permissions(
         description=role.description,
         status=role.status,
         created_at=role.created_at,
+        updated_at=role.updated_at,
         permissions=[
             PermissionBasicInRole(id=p.id, name=p.name, code=p.code, type=p.type)
             for p in role.permissions
