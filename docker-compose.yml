@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Portal 后端 API
   backend:
