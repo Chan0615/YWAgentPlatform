@@ -37,6 +37,7 @@
           <template v-if="column.dataIndex === 'actions'">
             <a-space>
               <a-button v-permission="'btn:application:edit'" type="link" size="small" @click="handleEdit(record)">编辑</a-button>
+              <a-button v-permission="'btn:application:edit'" type="link" size="small" @click="handleAssignRoles(record)">可见角色</a-button>
               <a-button
                 v-permission="'btn:application:edit'"
                 type="link"
@@ -53,6 +54,27 @@
         </template>
       </a-table>
     </a-card>
+
+    <a-drawer
+      v-model:open="roleDrawerVisible"
+      title="配置可见角色"
+      :width="420"
+      @close="roleDrawerVisible = false"
+    >
+      <a-spin :spinning="roleDrawerLoading">
+        <a-checkbox-group v-model:value="selectedRoleIds" class="role-checkbox-group">
+          <a-space direction="vertical" style="width: 100%">
+            <a-checkbox v-for="item in roleOptions" :key="item.value" :value="item.value">
+              {{ item.label }}
+            </a-checkbox>
+          </a-space>
+        </a-checkbox-group>
+      </a-spin>
+      <div class="drawer-footer">
+        <a-button style="margin-right: 8px" @click="roleDrawerVisible = false">取消</a-button>
+        <a-button type="primary" :loading="roleDrawerSubmitLoading" @click="handleRoleSubmit">保存</a-button>
+      </div>
+    </a-drawer>
 
     <a-modal
       v-model:open="modalVisible"
@@ -134,12 +156,14 @@ import { message } from 'ant-design-vue'
 import type { FormInstance, TablePaginationConfig } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import {
+  assignApplicationVisibleRolesApi,
   createApplicationApi,
   deleteApplicationApi,
   getApplicationListApi,
   updateApplicationApi,
   type ApplicationRecord,
 } from '@/api/application'
+import { getRoleListApi } from '@/api/role'
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -148,6 +172,12 @@ const isEdit = ref(false)
 const formRef = ref<FormInstance>()
 const dataList = ref<ApplicationRecord[]>([])
 const searchName = ref('')
+const roleDrawerVisible = ref(false)
+const roleDrawerLoading = ref(false)
+const roleDrawerSubmitLoading = ref(false)
+const currentAppId = ref(0)
+const selectedRoleIds = ref<number[]>([])
+const roleOptions = ref<{ label: string; value: number }[]>([])
 const iconOptions = [
   { label: '应用商店', value: 'AppstoreOutlined' },
   { label: '云服务器', value: 'CloudServerOutlined' },
@@ -210,6 +240,11 @@ async function fetchData() {
   }
 }
 
+async function fetchRoles() {
+  const res = await getRoleListApi({ page: 1, page_size: 100 })
+  roleOptions.value = (res.items || []).map((item) => ({ label: item.name, value: item.id }))
+}
+
 function handleSearch() {
   pagination.current = 1
   fetchData()
@@ -251,6 +286,18 @@ function handleEdit(record: ApplicationRecord) {
   modalVisible.value = true
 }
 
+async function handleAssignRoles(record: ApplicationRecord) {
+  currentAppId.value = record.id
+  selectedRoleIds.value = [...(record.visible_role_ids || [])]
+  roleDrawerVisible.value = true
+  roleDrawerLoading.value = true
+  try {
+    await fetchRoles()
+  } finally {
+    roleDrawerLoading.value = false
+  }
+}
+
 async function handleSubmit() {
   try {
     await formRef.value?.validateFields()
@@ -284,6 +331,18 @@ async function handleDelete(id: number) {
   await deleteApplicationApi(id)
   message.success('删除成功')
   fetchData()
+}
+
+async function handleRoleSubmit() {
+  roleDrawerSubmitLoading.value = true
+  try {
+    await assignApplicationVisibleRolesApi(currentAppId.value, selectedRoleIds.value)
+    message.success('可见角色更新成功')
+    roleDrawerVisible.value = false
+    fetchData()
+  } finally {
+    roleDrawerSubmitLoading.value = false
+  }
 }
 
 function resetForm() {
@@ -333,5 +392,20 @@ onMounted(() => {
 
 .access-guide {
   margin-bottom: 16px;
+}
+
+.role-checkbox-group {
+  width: 100%;
+}
+
+.drawer-footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 12px 16px;
+  border-top: 1px solid #f0f0f0;
+  background: #fff;
+  text-align: right;
 }
 </style>

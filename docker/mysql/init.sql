@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `permissions` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `parent_id` INT DEFAULT 0 COMMENT '父级ID, 0为顶级',
     `name` VARCHAR(100) NOT NULL,
-    `code` VARCHAR(100) NOT NULL UNIQUE COMMENT '权限编码 如 app:cmdb, menu:user, btn:user:create',
+    `code` VARCHAR(100) NOT NULL UNIQUE COMMENT '权限编码 如 app:agenticops, menu:user, btn:user:create',
     `type` ENUM('app', 'menu', 'button') NOT NULL COMMENT '权限类型',
     `path` VARCHAR(200) DEFAULT '' COMMENT '前端路由路径',
     `icon` VARCHAR(100) DEFAULT '' COMMENT '图标',
@@ -110,14 +110,12 @@ INSERT INTO `users` (`username`, `password_hash`, `nickname`, `email`, `status`)
 -- 默认角色
 INSERT INTO `roles` (`name`, `code`, `description`) VALUES
 ('超级管理员', 'admin', '拥有所有权限'),
-('CMDB管理员', 'cmdb_admin', '拥有CMDB相关所有权限'),
-('Agent平台管理员', 'agent_admin', '拥有Agent自动化平台所有权限'),
-('只读用户', 'readonly', '只有查看权限');
+('只读用户', 'readonly', '默认只读访问权限');
 
 -- 默认权限 (树形结构)
 -- 应用级权限
 INSERT INTO `permissions` (`id`, `parent_id`, `name`, `code`, `type`, `icon`, `sort_order`) VALUES
-(1, 0, 'AgenticOps 智能运维', 'app:cmdb', 'app', 'CloudServerOutlined', 1),
+(1, 0, 'AgenticOps 智能运维', 'app:agenticops', 'app', 'CloudServerOutlined', 1),
 (2, 0, 'Agent 自动化平台', 'app:agent', 'app', 'RobotOutlined', 2),
 (3, 0, 'Daily 数据工具', 'app:daily', 'app', 'DatabaseOutlined', 3);
 
@@ -156,15 +154,37 @@ INSERT INTO `permissions` (`parent_id`, `name`, `code`, `type`, `sort_order`) VA
 
 -- 超级管理员角色分配所有权限
 INSERT INTO `role_permissions` (`role_id`, `permission_id`)
-SELECT 1, id FROM `permissions`;
+SELECT r.id, p.id
+FROM `roles` r
+CROSS JOIN `permissions` p
+WHERE r.code = 'admin';
 
--- CMDB管理员角色分配
+-- 只读角色分配基础可见权限
 INSERT INTO `role_permissions` (`role_id`, `permission_id`)
-SELECT 2, id FROM `permissions` WHERE `code` IN ('app:cmdb', 'menu:dashboard', 'menu:app-center');
+SELECT r.id, p.id
+FROM `roles` r
+JOIN `permissions` p ON p.code IN (
+  'menu:dashboard',
+  'menu:app-center',
+  'app:agenticops',
+  'app:agent',
+  'app:daily'
+)
+WHERE r.code = 'readonly';
 
--- Agent管理员角色分配  
-INSERT INTO `role_permissions` (`role_id`, `permission_id`)
-SELECT 3, id FROM `permissions` WHERE `code` IN ('app:agent', 'menu:dashboard', 'menu:app-center');
+-- 默认只读用户 (密码: readonly123, bcrypt hash)
+INSERT INTO `users` (`username`, `password_hash`, `nickname`, `email`, `status`) VALUES
+('readonly', '$2b$12$aAV2EQjM4eb3zKcL0xdi1u7oJPd4kTL4jNX.UNYNx/2Vt7XOA06MS', '只读用户', 'readonly@yw.ops.com', 1);
 
--- 管理员用户分配超级管理员角色
-INSERT INTO `user_roles` (`user_id`, `role_id`) VALUES (1, 1);
+-- 用户分配角色
+INSERT INTO `user_roles` (`user_id`, `role_id`)
+SELECT u.id, r.id
+FROM `users` u
+JOIN `roles` r ON r.code = 'admin'
+WHERE u.username = 'admin';
+
+INSERT INTO `user_roles` (`user_id`, `role_id`)
+SELECT u.id, r.id
+FROM `users` u
+JOIN `roles` r ON r.code = 'readonly'
+WHERE u.username = 'readonly';

@@ -7,13 +7,45 @@ from sqlalchemy import select, func
 from app.core.database import get_db
 from app.models.application import Application
 from app.models.permission import Permission
+from app.models.role import Role
 from app.models.user import User
 from app.schemas.application import (
     ApplicationCreate, ApplicationUpdate, ApplicationResponse, ApplicationListResponse,
+    AssignApplicationRolesRequest,
 )
 from app.api.deps import get_current_user, require_permissions, get_user_permissions
 
 router = APIRouter(prefix="/applications", tags=["Applications"])
+
+
+async def _build_application_response(app: Application, db: AsyncSession) -> ApplicationResponse:
+    permission_result = await db.execute(
+        select(Permission).where(Permission.code == f"app:{app.code}")
+    )
+    permission = permission_result.scalar_one_or_none()
+
+    visible_role_ids: List[int] = []
+    if permission:
+        roles_result = await db.execute(
+            select(Role.id)
+            .join(Role.permissions)
+            .where(Permission.id == permission.id)
+        )
+        visible_role_ids = list(roles_result.scalars().all())
+
+    return ApplicationResponse(
+        id=app.id,
+        name=app.name,
+        code=app.code,
+        description=app.description,
+        url=app.url,
+        icon=app.icon,
+        sort_order=app.sort_order,
+        status=app.status,
+        created_at=app.created_at,
+        updated_at=app.updated_at,
+        visible_role_ids=visible_role_ids,
+    )
 
 
 @router.get("", response_model=ApplicationListResponse)
@@ -43,7 +75,7 @@ async def list_applications(
         total=total,
         page=page,
         page_size=page_size,
-        items=[ApplicationResponse.model_validate(a) for a in apps],
+        items=[await _build_application_response(a, db) for a in apps],
     )
 
 
@@ -80,7 +112,7 @@ async def list_visible_applications(
         )
 
     apps = result.scalars().all()
-    return [ApplicationResponse.model_validate(a) for a in apps]
+    return [await _build_application_response(a, db) for a in apps]
 
 
 @router.get("/{app_id}", response_model=ApplicationResponse)
@@ -101,7 +133,7 @@ async def get_application(
         if f"app:{app.code}" not in permissions:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied")
 
-    return ApplicationResponse.model_validate(app)
+    return await _build_application_response(app, db)
 
 
 @router.post("", response_model=ApplicationResponse, status_code=status.HTTP_201_CREATED)
@@ -129,8 +161,21 @@ async def create_application(
     )
     db.add(app)
     await db.flush()
+
+    permission = Permission(
+        parent_id=None,
+        name=app_in.name,
+        code=f"app:{app_in.code}",
+        type="app",
+        path=None,
+        icon=app_in.icon,
+        sort_order=app_in.sort_order,
+        status=app_in.status,
+    )
+    db.add(permission)
+
     await db.refresh(app)
-    return ApplicationResponse.model_validate(app)
+    return await _build_application_response(app, db)
 
 
 @router.put("/{app_id}", response_model=ApplicationResponse)
@@ -145,6 +190,13 @@ async def update_application(
     app = result.scalar_one_or_none()
     if not app:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
+
+    permission_result = await db.execute(
+        select(Permission).where(Permission.code == f"app:{app.code}")
+    )
+    permission = permission_result.scalar_one_or_none()
+
+    old_code = app.code
 
     if app_in.name is not None:
         app.name = app_in.name
@@ -161,9 +213,29 @@ async def update_application(
     if app_in.status is not None:
         app.status = app_in.status
 
+    if permission:
+        permission.name = app.name
+        permission.code = f"app:{app.code}"
+        permission.icon = app.icon
+        permission.sort_order = app.sort_order
+        permission.status = app.status
+    elif old_code != app.code or app_in.name is not None:
+        db.add(
+            Permission(
+                parent_id=None,
+                name=app.name,
+                code=f"app:{app.code}",
+                type="app",
+                path=None,
+                icon=app.icon,
+                sort_order=app.sort_order,
+                status=app.status,
+            )
+        )
+
     await db.flush()
     await db.refresh(app)
-    return ApplicationResponse.model_validate(app)
+    return await _build_application_response(app, db)
 
 
 @router.delete("/{app_id}")
@@ -188,3 +260,44 @@ async def delete_application(
     await db.delete(app)
     await db.flush()
     return {"message": "Application deleted successfully"}
+
+
+@router.post("/{app_id}/visible-roles", response_model=ApplicationResponse)
+async def assign_visible_roles(
+    app_id: int,
+    body: AssignApplicationRolesRequest,
+    current_user: User = Depends(require_permissions("btn:application:edit")),
+    db: AsyncSession = Depends(get_db),
+):
+    app_result = await db.execute(select(Application).where(Application.id == app_id))
+    app = app_result.scalar_one_or_none()
+    if not app:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
+
+    permission_result = await db.execute(
+        select(Permission).where(Permission.code == f"app:{app.code}")
+    )
+    permission = permission_result.scalar_one_or_none()
+    if not permission:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application permission not found")
+
+    roles_result = await db.execute(
+        select(Role).where(Role.id.in_(body.role_ids)).options()
+    )
+    roles = roles_result.scalars().all()
+
+    current_roles_result = await db.execute(
+        select(Role).join(Role.permissions).where(Permission.id == permission.id)
+    )
+    current_roles = current_roles_result.scalars().all()
+
+    for role in current_roles:
+        role.permissions = [p for p in role.permissions if p.id != permission.id]
+
+    for role in roles:
+        if permission not in role.permissions:
+            role.permissions.append(permission)
+
+    await db.flush()
+    await db.refresh(app)
+    return await _build_application_response(app, db)

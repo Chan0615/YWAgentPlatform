@@ -27,13 +27,13 @@
 用户(User) ──M:N──▶ 角色(Role) ──M:N──▶ 权限(Permission)
 
 权限类型 (三级):
-  app:cmdb           → 应用级 (能否进入子应用)
+  app:agenticops     → 应用级 (能否进入子应用)
   menu:system:user   → 菜单级 (侧边栏是否可见)
   btn:user:create    → 按钮级 (页面内操作按钮是否显示)
 
 示例:
-  用户A → CMDB管理员   → app:cmdb (能进CMDB，不能进工单)
-  用户B → Agent管理员  → app:agent (能进Agent，不能进CMDB)
+  用户A → AgenticOps管理员 → app:agenticops (能进 AgenticOps，不能进其他系统)
+  用户B → Agent管理员      → app:agent (能进 Agent 平台，不能进 AgenticOps)
   用户C → 超级管理员   → 所有权限
 ```
 
@@ -43,7 +43,7 @@
 
 | 应用 | 编码 | 说明 | 技术栈 |
 |------|------|------|--------|
-| AgenticOps 智能运维 | cmdb | AI运维平台（资产管理、RAG知识库、NL2SQL） | FastAPI + Vue 3 |
+| AgenticOps 智能运维 | agenticops | AI运维平台（资产管理、RAG知识库、NL2SQL） | FastAPI + Vue 3 |
 | Agent 自动化平台 | agent | 多Agent运维自动化（工作流、SSH、告警） | Express + React 18 |
 | Daily 数据工具 | daily | 游戏运营数据查询与导出 | Python Scripts |
 

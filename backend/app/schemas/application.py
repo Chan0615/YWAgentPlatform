@@ -34,6 +34,7 @@ class ApplicationResponse(BaseModel):
     status: int
     created_at: datetime
     updated_at: datetime
+    visible_role_ids: List[int] = []
 
     class Config:
         from_attributes = True
@@ -44,3 +45,7 @@ class ApplicationListResponse(BaseModel):
     page: int
     page_size: int
     items: List[ApplicationResponse]
+
+
+class AssignApplicationRolesRequest(BaseModel):
+    role_ids: List[int]

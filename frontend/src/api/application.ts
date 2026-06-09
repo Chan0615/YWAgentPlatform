@@ -11,6 +11,7 @@ export interface ApplicationRecord {
   sort_order: number
   created_at: string
   updated_at?: string
+  visible_role_ids?: number[]
 }
 
 export interface ApplicationListParams {
@@ -70,4 +71,8 @@ export function updateApplicationApi(data: UpdateApplicationParams) {
 
 export function deleteApplicationApi(id: number) {
   return request.delete(`/applications/${id}`)
+}
+
+export function assignApplicationVisibleRolesApi(appId: number, roleIds: number[]) {
+  return request.post<ApplicationRecord>(`/applications/${appId}/visible-roles`, { role_ids: roleIds })
 }

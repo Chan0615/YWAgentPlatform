@@ -16,14 +16,13 @@ from app.core.security import hash_password
 from app.models.user import User
 from app.models.role import Role
 from app.models.permission import Permission
-from app.models.application import Application
 
 
 async def init_permissions(session) -> dict:
     """Create default permission tree. Returns dict of code -> Permission."""
     permissions_data = [
         # App-level permissions
-        {"parent_id": None, "name": "CMDB", "code": "app:cmdb", "type": "app", "path": None, "icon": "database", "sort_order": 1},
+        {"parent_id": None, "name": "AgenticOps 智能运维", "code": "app:agenticops", "type": "app", "path": None, "icon": "database", "sort_order": 1},
         {"parent_id": None, "name": "Agent Platform", "code": "app:agent", "type": "app", "path": None, "icon": "robot", "sort_order": 2},
         {"parent_id": None, "name": "Monitoring", "code": "app:monitor", "type": "app", "path": None, "icon": "monitor", "sort_order": 3},
 
@@ -104,19 +103,14 @@ async def init_roles(session, permissions: dict) -> dict:
     """Create default roles."""
     roles_data = [
         {
-            "name": "Super Admin",
+            "name": "超级管理员",
             "code": "admin",
-            "description": "Full access to all resources",
+            "description": "拥有所有权限",
         },
         {
-            "name": "Operator",
-            "code": "operator",
-            "description": "Can manage applications and view audit logs",
-        },
-        {
-            "name": "Viewer",
-            "code": "viewer",
-            "description": "Read-only access to portal resources",
+            "name": "只读用户",
+            "code": "readonly",
+            "description": "默认只读访问权限",
         },
     ]
 
@@ -132,45 +126,38 @@ async def init_roles(session, permissions: dict) -> dict:
             await session.flush()
         code_to_role[role.code] = role
 
-    # Assign permissions to operator role
-    operator_role = code_to_role.get("operator")
-    if operator_role:
+    # Super admin gets all permissions
+    admin_role = code_to_role.get("admin")
+    if admin_role:
         result = await session.execute(
-            select(Role).options(selectinload(Role.permissions)).where(Role.id == operator_role.id)
+            select(Role).options(selectinload(Role.permissions)).where(Role.id == admin_role.id)
         )
-        operator_role = result.scalar_one()
-        if not operator_role.permissions:
-            operator_perms = [
-                permissions[code] for code in [
-                    "app:cmdb", "app:agent", "app:monitor",
-                    "menu:system", "menu:application", "menu:audit",
-                    "btn:application:create", "btn:application:edit",
-                ] if code in permissions
-            ]
-            operator_role.permissions = operator_perms
+        admin_role = result.scalar_one()
+        if not admin_role.permissions:
+            admin_role.permissions = list(permissions.values())
 
-    # Assign permissions to viewer role
-    viewer_role = code_to_role.get("viewer")
-    if viewer_role:
+    # Readonly role gets basic view permissions
+    readonly_role = code_to_role.get("readonly")
+    if readonly_role:
         result = await session.execute(
-            select(Role).options(selectinload(Role.permissions)).where(Role.id == viewer_role.id)
+            select(Role).options(selectinload(Role.permissions)).where(Role.id == readonly_role.id)
         )
-        viewer_role = result.scalar_one()
-        if not viewer_role.permissions:
-            viewer_perms = [
+        readonly_role = result.scalar_one()
+        if not readonly_role.permissions:
+            readonly_perms = [
                 permissions[code] for code in [
-                    "app:cmdb", "app:agent",
-                    "menu:system", "menu:user", "menu:role", "menu:permission",
+                    "menu:dashboard", "menu:app-center",
+                    "app:agenticops", "app:agent", "app:daily",
                 ] if code in permissions
             ]
-            viewer_role.permissions = viewer_perms
+            readonly_role.permissions = readonly_perms
 
     await session.flush()
     return code_to_role
 
 
 async def init_admin_user(session, roles: dict):
-    """Create default admin user."""
+    """Create default admin user and readonly user."""
     result = await session.execute(
         select(User).where(User.username == "admin")
     )
@@ -200,6 +187,35 @@ async def init_admin_user(session, roles: dict):
         print(f"[INIT] Created admin user (username: admin, password: admin123)")
     else:
         print(f"[INIT] Admin user already exists, skipping.")
+
+    result = await session.execute(
+        select(User).where(User.username == "readonly")
+    )
+    readonly_user = result.scalar_one_or_none()
+
+    if not readonly_user:
+        readonly_user = User(
+            username="readonly",
+            password_hash=hash_password("readonly123"),
+            nickname="只读用户",
+            email="readonly@yw.ops.com",
+            status=1,
+        )
+        session.add(readonly_user)
+        await session.flush()
+
+        readonly_role = roles.get("readonly")
+        if readonly_role:
+            result = await session.execute(
+                select(User).options(selectinload(User.roles)).where(User.id == readonly_user.id)
+            )
+            readonly_user = result.scalar_one()
+            readonly_user.roles = [readonly_role]
+            await session.flush()
+
+        print(f"[INIT] Created readonly user (username: readonly, password: readonly123)")
+    else:
+        print(f"[INIT] Readonly user already exists, skipping.")
 
 
 async def main():
