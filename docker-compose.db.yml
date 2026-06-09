@@ -1,0 +1,52 @@
+# 仅启动 MySQL + Redis (开发和正式共用)
+# 启动: docker compose -f docker-compose.db.yml up -d
+# 停止: docker compose -f docker-compose.db.yml down
+# 清除数据重建: docker compose -f docker-compose.db.yml down -v && docker compose -f docker-compose.db.yml up -d
+# 清除数据: docker compose -f docker-compose.db.yml down -v
+#
+# 注意: 需要先创建 .env 文件 (参考 .env.example)
+
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: YWAgentPlatform-MySQL
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-yw_agent_portal}
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - YWAgentPlatform-MySQL_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: YWAgentPlatform-Redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - YWAgentPlatform-Redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  YWAgentPlatform-MySQL_data:
+  YWAgentPlatform-Redis_data:

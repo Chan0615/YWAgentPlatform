@@ -1,0 +1,62 @@
+# ===========================
+# YW.Ops 运维管理平台 .gitignore
+# ===========================
+
+# ----- Python -----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# 虚拟环境
+.venv/
+venv/
+ENV/
+
+# ----- Node.js -----
+node_modules/
+frontend/node_modules/
+
+# ----- 构建产物 -----
+frontend/dist/
+*.tsbuildinfo
+
+# ----- 环境配置 (含密码，绝不提交) -----
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# ----- IDE -----
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ----- OS -----
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ----- Docker 数据卷 -----
+mysql_data/
+redis_data/
+
+# ----- 日志 -----
+*.log
+logs/
+
+# ----- SSL 证书 -----
+nginx/ssl/
+
+# ----- 临时文件 -----
+*.tmp
+*.bak
+*.orig
+.cache/
