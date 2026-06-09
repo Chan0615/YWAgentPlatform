@@ -1,6 +1,7 @@
 -- YW.Ops Portal 数据库初始化
 SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
+SET time_zone = '+08:00';
 
 CREATE DATABASE IF NOT EXISTS yw_agent_portal CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

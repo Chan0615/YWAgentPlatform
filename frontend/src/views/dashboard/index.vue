@@ -139,6 +139,7 @@ import {
   DashboardOutlined,
 } from '@ant-design/icons-vue'
 import { getAuditLogListApi, type AuditLogRecord } from '@/api/audit'
+import { getDashboardStatsApi, type DashboardStats } from '@/api/dashboard'
 import dayjs from 'dayjs'
 
 const router = useRouter()
@@ -157,12 +158,13 @@ const currentTime = ref(dayjs().format('HH:mm:ss'))
 let timer: ReturnType<typeof setInterval> | null = null
 
 // Statistics
-const stats = ref({
-  totalApps: 12,
-  totalUsers: 86,
-  todayOperations: 234,
-  totalRoles: 8,
+const stats = ref<DashboardStats>({
+  totalApps: 0,
+  totalUsers: 0,
+  todayOperations: 0,
+  totalRoles: 0,
 })
+const statsLoading = ref(false)
 
 // Audit logs
 const recentLogs = ref<AuditLogRecord[]>([])
@@ -201,6 +203,18 @@ function formatTime(time: string): string {
   return dayjs(time).format('MM-DD HH:mm:ss')
 }
 
+async function fetchStats() {
+  statsLoading.value = true
+  try {
+    const res = await getDashboardStatsApi()
+    stats.value = res
+  } catch {
+    // Error handled by interceptor
+  } finally {
+    statsLoading.value = false
+  }
+}
+
 async function fetchRecentLogs() {
   logsLoading.value = true
   try {
@@ -214,6 +228,7 @@ async function fetchRecentLogs() {
 }
 
 onMounted(() => {
+  fetchStats()
   fetchRecentLogs()
   timer = setInterval(() => {
     currentTime.value = dayjs().format('HH:mm:ss')

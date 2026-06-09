@@ -13,6 +13,7 @@ from app.api.roles import router as roles_router
 from app.api.permissions import router as permissions_router
 from app.api.applications import router as applications_router
 from app.api.audit import router as audit_router
+from app.api.dashboard import router as dashboard_router
 
 
 @asynccontextmanager
@@ -58,6 +59,7 @@ app.include_router(roles_router, prefix=API_PREFIX)
 app.include_router(permissions_router, prefix=API_PREFIX)
 app.include_router(applications_router, prefix=API_PREFIX)
 app.include_router(audit_router, prefix=API_PREFIX)
+app.include_router(dashboard_router, prefix=API_PREFIX)
 
 
 @app.get("/health")
