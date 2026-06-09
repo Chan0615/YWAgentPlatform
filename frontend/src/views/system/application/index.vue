@@ -232,7 +232,7 @@ async function fetchData() {
       page: pagination.current,
       page_size: pagination.pageSize,
       name: searchName.value || undefined,
-    } as any)
+    })
     dataList.value = res.items || []
     pagination.total = res.total
   } finally {

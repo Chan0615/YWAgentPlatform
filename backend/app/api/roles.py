@@ -147,6 +147,24 @@ async def update_role(
     if not role:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Role not found")
 
+    # Check uniqueness for name/code changes
+    if role_in.name is not None or role_in.code is not None:
+        conditions = []
+        if role_in.name is not None and role_in.name != role.name:
+            conditions.append(Role.name == role_in.name)
+        if role_in.code is not None and role_in.code != role.code:
+            conditions.append(Role.code == role_in.code)
+        if conditions:
+            from sqlalchemy import or_
+            existing = await db.execute(
+                select(Role).where(or_(*conditions), Role.id != role_id)
+            )
+            if existing.scalar_one_or_none():
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Role name or code already exists",
+                )
+
     if role_in.name is not None:
         role.name = role_in.name
     if role_in.code is not None:

@@ -71,15 +71,11 @@
                 编辑
               </a-button>
               <a-popconfirm
+                v-if="userStore.hasPermission('btn:permission:delete')"
                 title="确定删除此权限及其子级？"
                 @confirm="handleDelete(record.id)"
               >
-                <a-button
-                  v-permission="'btn:permission:delete'"
-                  type="link"
-                  size="small"
-                  danger
-                >
+                <a-button type="link" size="small" danger>
                   删除
                 </a-button>
               </a-popconfirm>
@@ -146,8 +142,8 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item label="排序" name="sort">
-              <a-input-number v-model:value="formState.sort" :min="0" style="width: 100%" />
+            <a-form-item label="排序" name="sort_order">
+              <a-input-number v-model:value="formState.sort_order" :min="0" style="width: 100%" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -168,6 +164,7 @@ import { PlusOutlined, FolderOutlined, ApiOutlined, LockOutlined } from '@ant-de
 import { message } from 'ant-design-vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
+import { useUserStore } from '@/store/user'
 import {
   getPermissionTreeApi,
   createPermissionApi,
@@ -176,6 +173,7 @@ import {
   type PermissionRecord,
 } from '@/api/permission'
 
+const userStore = useUserStore()
 const loading = ref(false)
 const treeData = ref<PermissionRecord[]>([])
 const expandedKeys = ref<number[]>([])

@@ -17,7 +17,7 @@ export interface ApplicationRecord {
 export interface ApplicationListParams {
   page?: number
   page_size?: number
-  keyword?: string
+  name?: string
   status?: number
 }
 

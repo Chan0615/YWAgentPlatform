@@ -191,6 +191,17 @@ async def update_application(
     if not app:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
 
+    # Check code uniqueness if changing
+    if app_in.code is not None and app_in.code != app.code:
+        existing = await db.execute(
+            select(Application).where(Application.code == app_in.code, Application.id != app_id)
+        )
+        if existing.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Application code already exists",
+            )
+
     permission_result = await db.execute(
         select(Permission).where(Permission.code == f"app:{app.code}")
     )

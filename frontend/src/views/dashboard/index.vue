@@ -133,7 +133,6 @@ import {
   UserOutlined,
   ThunderboltOutlined,
   TeamOutlined,
-  SettingOutlined,
   SafetyOutlined,
   FileSearchOutlined,
   DashboardOutlined,
@@ -185,7 +184,6 @@ const shortcuts = [
   { label: '角色管理', path: '/system/roles', icon: markRaw(TeamOutlined), color: 'rgba(114,46,209,0.1)' },
   { label: '权限管理', path: '/system/permissions', icon: markRaw(SafetyOutlined), color: 'rgba(24,144,255,0.1)' },
   { label: '审计日志', path: '/system/audit-log', icon: markRaw(FileSearchOutlined), color: 'rgba(250,173,20,0.1)' },
-  { label: '系统设置', path: '/system/users', icon: markRaw(SettingOutlined), color: 'rgba(235,47,150,0.1)' },
 ]
 
 function getActionColor(action: string): string {

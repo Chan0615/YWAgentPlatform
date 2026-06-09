@@ -65,15 +65,11 @@
                 分配权限
               </a-button>
               <a-popconfirm
+                v-if="userStore.hasPermission('btn:role:delete')"
                 title="确定删除此角色？"
                 @confirm="handleDelete(record.id)"
               >
-                <a-button
-                  v-permission="'btn:role:delete'"
-                  type="link"
-                  size="small"
-                  danger
-                >
+                <a-button type="link" size="small" danger>
                   删除
                 </a-button>
               </a-popconfirm>
@@ -162,6 +158,7 @@ import { message } from 'ant-design-vue'
 import type { FormInstance, TablePaginationConfig } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import dayjs from 'dayjs'
+import { useUserStore } from '@/store/user'
 import {
   getRoleListApi,
   createRoleApi,
@@ -172,6 +169,7 @@ import {
 } from '@/api/role'
 import { getPermissionTreeApi, type PermissionRecord } from '@/api/permission'
 
+const userStore = useUserStore()
 const loading = ref(false)
 const dataList = ref<RoleRecord[]>([])
 const formRef = ref<FormInstance>()

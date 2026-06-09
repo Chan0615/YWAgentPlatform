@@ -74,15 +74,11 @@
                 重置密码
               </a-button>
               <a-popconfirm
+                v-if="userStore.hasPermission('btn:user:delete')"
                 title="确定删除此用户？"
                 @confirm="handleDelete(record.id)"
               >
-                <a-button
-                  v-permission="'btn:user:delete'"
-                  type="link"
-                  size="small"
-                  danger
-                >
+                <a-button type="link" size="small" danger>
                   删除
                 </a-button>
               </a-popconfirm>
@@ -170,6 +166,7 @@ import { PlusOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import type { FormInstance, TablePaginationConfig } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
+import { useUserStore } from '@/store/user'
 import {
   getUserListApi,
   createUserApi,
@@ -180,6 +177,7 @@ import {
 } from '@/api/user'
 import { getRoleListApi } from '@/api/role'
 
+const userStore = useUserStore()
 const loading = ref(false)
 const dataList = ref<UserRecord[]>([])
 const formRef = ref<FormInstance>()
@@ -240,7 +238,7 @@ async function fetchData() {
     const res = await getUserListApi({
       page: pagination.current,
       page_size: pagination.pageSize,
-      username: searchParams.keyword || undefined,
+      keyword: searchParams.keyword || undefined,
       status: searchParams.status,
     })
     dataList.value = res.items || []

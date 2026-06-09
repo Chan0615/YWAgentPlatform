@@ -34,26 +34,26 @@
           <template #icon><AppstoreOutlined /></template>
           <span>应用中心</span>
         </a-menu-item>
-        <a-sub-menu key="/system">
+        <a-sub-menu v-if="hasSystemMenu" key="/system">
           <template #icon><SettingOutlined /></template>
           <template #title>系统管理</template>
-          <a-menu-item key="/system/users">
+          <a-menu-item v-if="userStore.hasPermission('menu:system:user')" key="/system/users">
             <template #icon><UserOutlined /></template>
             <span>用户管理</span>
           </a-menu-item>
-          <a-menu-item key="/system/roles">
+          <a-menu-item v-if="userStore.hasPermission('menu:system:role')" key="/system/roles">
             <template #icon><TeamOutlined /></template>
             <span>角色管理</span>
           </a-menu-item>
-          <a-menu-item key="/system/permissions">
+          <a-menu-item v-if="userStore.hasPermission('menu:system:permission')" key="/system/permissions">
             <template #icon><SafetyOutlined /></template>
             <span>权限管理</span>
           </a-menu-item>
-          <a-menu-item key="/system/applications">
+          <a-menu-item v-if="userStore.hasPermission('menu:application')" key="/system/applications">
             <template #icon><AppstoreAddOutlined /></template>
             <span>应用管理</span>
           </a-menu-item>
-          <a-menu-item key="/system/audit-log">
+          <a-menu-item v-if="userStore.hasPermission('menu:system:audit')" key="/system/audit-log">
             <template #icon><FileSearchOutlined /></template>
             <span>审计日志</span>
           </a-menu-item>
@@ -78,9 +78,6 @@
           </a-breadcrumb>
         </div>
         <div class="header-right">
-          <a-badge :count="3" :offset="[-2, 4]" class="header-action">
-            <BellOutlined class="action-icon" />
-          </a-badge>
           <a-dropdown placement="bottomRight">
             <span class="user-dropdown">
               <a-avatar :size="32" class="user-avatar">
@@ -129,7 +126,6 @@ import {
   FileSearchOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
-  BellOutlined,
   LogoutOutlined,
 } from '@ant-design/icons-vue'
 import { Modal } from 'ant-design-vue'
@@ -141,6 +137,17 @@ const appStore = useAppStore()
 
 const selectedKeys = ref<string[]>([route.path])
 const openKeys = ref<string[]>([])
+
+// Check if user has any system menu permission
+const hasSystemMenu = computed(() => {
+  return (
+    userStore.hasPermission('menu:system:user') ||
+    userStore.hasPermission('menu:system:role') ||
+    userStore.hasPermission('menu:system:permission') ||
+    userStore.hasPermission('menu:application') ||
+    userStore.hasPermission('menu:system:audit')
+  )
+})
 
 // Menu title map for breadcrumb
 const menuTitleMap: Record<string, string> = {

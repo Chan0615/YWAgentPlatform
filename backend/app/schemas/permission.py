@@ -36,6 +36,7 @@ class PermissionResponse(BaseModel):
     sort_order: int
     status: int
     created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
@@ -52,6 +53,7 @@ class PermissionTreeResponse(BaseModel):
     sort_order: int
     status: int
     created_at: datetime
+    updated_at: datetime
     children: List["PermissionTreeResponse"] = []
 
     class Config:

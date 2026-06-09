@@ -15,7 +15,7 @@ export interface UserRecord {
 export interface UserListParams {
   page?: number
   page_size?: number
-  username?: string
+  keyword?: string
   status?: number
 }
 

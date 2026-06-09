@@ -5,6 +5,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 from sqlalchemy import select
+from loguru import logger
 
 from app.core.database import async_session_maker
 from app.core.security import decode_token
@@ -71,8 +72,8 @@ class AuditMiddleware(BaseHTTPMiddleware):
                     row = result.scalar_one_or_none()
                     if row:
                         username = row
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Audit: Failed to resolve username for user_id={user_id}: {e}")
 
         # Write audit log
         try:
@@ -90,9 +91,9 @@ class AuditMiddleware(BaseHTTPMiddleware):
                 )
                 session.add(log_entry)
                 await session.commit()
-        except Exception:
-            # Audit logging should never break the request
-            pass
+        except Exception as e:
+            # Audit logging should never break the request, but log the error
+            logger.warning(f"Audit: Failed to write audit log: {e}")
 
         return response
 

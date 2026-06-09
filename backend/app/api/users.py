@@ -2,7 +2,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
@@ -19,7 +19,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 async def list_users(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    username: Optional[str] = Query(None),
+    keyword: Optional[str] = Query(None, description="Search username, nickname, or email"),
     status_filter: Optional[int] = Query(None, alias="status"),
     current_user: User = Depends(require_permissions("menu:user")),
     db: AsyncSession = Depends(get_db),
@@ -28,9 +28,14 @@ async def list_users(
     query = select(User).options(selectinload(User.roles))
     count_query = select(func.count(User.id))
 
-    if username:
-        query = query.where(User.username.contains(username))
-        count_query = count_query.where(User.username.contains(username))
+    if keyword:
+        keyword_filter = or_(
+            User.username.contains(keyword),
+            User.nickname.contains(keyword),
+            User.email.contains(keyword),
+        )
+        query = query.where(keyword_filter)
+        count_query = count_query.where(keyword_filter)
     if status_filter is not None:
         query = query.where(User.status == status_filter)
         count_query = count_query.where(User.status == status_filter)
