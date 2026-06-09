@@ -21,7 +21,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function login(username: string, password: string) {
     const res = await loginApi({ username, password })
-    const accessToken = res.data.token
+    const accessToken = res.access_token
     token.value = accessToken
     setToken(accessToken)
     return res
@@ -37,11 +37,18 @@ export const useUserStore = defineStore('user', () => {
 
   async function fetchUserInfo() {
     const res = await getUserInfoApi()
-    const data = res.data
-    userInfo.value = data.user
-    permissions.value = data.permissions || []
-    roles.value = data.roles || []
-    return data
+    userInfo.value = {
+      id: res.id,
+      username: res.username,
+      nickname: res.nickname,
+      email: res.email,
+      phone: res.phone,
+      avatar: res.avatar,
+      status: res.status,
+    }
+    permissions.value = res.permissions || []
+    roles.value = res.roles?.map((r: any) => r.code) || []
+    return res
   }
 
   function resetState() {

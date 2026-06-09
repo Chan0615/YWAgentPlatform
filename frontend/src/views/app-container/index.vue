@@ -71,8 +71,7 @@ onMounted(async () => {
   }
 
   try {
-    const res = await getApplicationDetailApi(appId)
-    const app = res.data
+    const app = await getApplicationDetailApi(appId)
     appUrl.value = app.url
     appName.value = app.name
 

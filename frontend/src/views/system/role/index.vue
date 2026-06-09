@@ -220,8 +220,8 @@ async function fetchData() {
       page_size: pagination.pageSize,
       keyword: searchKeyword.value || undefined,
     })
-    dataList.value = res.data.list || []
-    pagination.total = res.data.total
+    dataList.value = res.items || []
+    pagination.total = res.total
   } finally {
     loading.value = false
   }
@@ -294,7 +294,7 @@ async function fetchPermissionTree() {
   permLoading.value = true
   try {
     const res = await getPermissionTreeApi()
-    permissionTree.value = res.data.list || []
+    permissionTree.value = res.items || []
   } finally {
     permLoading.value = false
   }

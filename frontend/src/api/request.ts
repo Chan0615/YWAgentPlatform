@@ -4,7 +4,7 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 import router from '@/router'
 
 const request = axios.create({
-  baseURL: '/api',
+  baseURL: '/api/v1',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -34,16 +34,8 @@ request.interceptors.request.use(
 
 request.interceptors.response.use(
   (response: AxiosResponse) => {
-    const res = response.data
-    if (res.code !== 0 && res.code !== 200) {
-      message.error(res.message || '请求失败')
-      if (res.code === 401) {
-        removeToken()
-        router.push('/login')
-      }
-      return Promise.reject(new Error(res.message || '请求失败'))
-    }
-    return res
+    // 后端直接返回数据，不包裹 code/message 格式
+    return response.data
   },
   async (error) => {
     const originalRequest = error.config
@@ -62,8 +54,8 @@ request.interceptors.response.use(
       isRefreshing = true
 
       try {
-        const res = await request.post('/auth/refresh-token')
-        const newToken = res.data.token
+        const res: any = await request.post('/auth/refresh', { refresh_token: getToken() })
+        const newToken = res.access_token
         setToken(newToken)
         onRefreshed(newToken)
         originalRequest.headers.Authorization = `Bearer ${newToken}`

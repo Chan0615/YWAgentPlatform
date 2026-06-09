@@ -167,8 +167,8 @@ async function fetchData() {
       end_time: searchParams.end_time || undefined,
     }
     const res = await getAuditLogListApi(params)
-    dataList.value = res.data.list || []
-    pagination.total = res.data.total
+    dataList.value = res.items || []
+    pagination.total = res.total
   } finally {
     loading.value = false
   }

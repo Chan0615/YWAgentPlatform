@@ -1,4 +1,7 @@
 -- YW.Ops Portal 数据库初始化
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
 CREATE DATABASE IF NOT EXISTS yw_agent_portal CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE yw_agent_portal;
@@ -102,7 +105,7 @@ CREATE TABLE IF NOT EXISTS `audit_logs` (
 
 -- 默认管理员用户 (密码: admin123, bcrypt hash)
 INSERT INTO `users` (`username`, `password_hash`, `nickname`, `email`, `status`) VALUES
-('admin', '$2b$12$LJ3a4RG2QU.QLKmnU5kHOeB4nON9l9R7LKWF7eSH5C8R4Ag8PmFi', '超级管理员', 'admin@yw.ops.com', 1);
+('admin', '$2b$12$FMHxzrxSUkzUf7mhSNvs.OuPM5SAEiba2cMzhLywKle5ps6KNxx/u', '超级管理员', 'admin@yw.ops.com', 1);
 
 -- 默认角色
 INSERT INTO `roles` (`name`, `code`, `description`) VALUES

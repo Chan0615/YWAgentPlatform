@@ -242,8 +242,8 @@ async function fetchData() {
       page_size: pagination.pageSize,
       ...searchParams,
     })
-    dataList.value = res.data.list || []
-    pagination.total = res.data.total
+    dataList.value = res.items || []
+    pagination.total = res.total
   } finally {
     loading.value = false
   }
@@ -252,7 +252,7 @@ async function fetchData() {
 async function fetchRoles() {
   try {
     const res = await getRoleListApi({ page: 1, page_size: 100 })
-    roleOptions.value = (res.data.list || []).map((r) => ({
+    roleOptions.value = (res.items || []).map((r) => ({
       label: r.name,
       value: r.id,
     }))

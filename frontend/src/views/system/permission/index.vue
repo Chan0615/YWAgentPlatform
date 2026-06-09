@@ -257,7 +257,7 @@ async function fetchData() {
   loading.value = true
   try {
     const res = await getPermissionTreeApi()
-    treeData.value = res.data.list || []
+    treeData.value = res.items || []
     parentOptions.value = treeData.value
   } finally {
     loading.value = false

@@ -44,11 +44,11 @@ export interface UpdateApplicationParams {
 }
 
 export function getApplicationListApi(params?: ApplicationListParams) {
-  return request.get<unknown, { data: { list: ApplicationRecord[]; total: number } }>('/applications', { params })
+  return request.get<unknown, ApplicationRecord[]>('/applications/visible')
 }
 
 export function getApplicationDetailApi(id: number) {
-  return request.get<unknown, { data: ApplicationRecord }>(`/applications/${id}`)
+  return request.get<unknown, ApplicationRecord>(`/applications/${id}`)
 }
 
 export function createApplicationApi(data: CreateApplicationParams) {

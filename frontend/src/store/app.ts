@@ -28,7 +28,7 @@ export const useAppStore = defineStore('app', () => {
 
   async function fetchApplications() {
     const res = await getApplicationListApi()
-    applications.value = res.data.list || []
+    applications.value = res || []
     return applications.value
   }
 

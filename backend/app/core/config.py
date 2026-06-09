@@ -1,4 +1,5 @@
 from typing import List
+from urllib.parse import quote_plus
 from pydantic_settings import BaseSettings
 from pydantic import field_validator
 
@@ -37,15 +38,17 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
+        password = quote_plus(self.DB_PASSWORD)
         return (
-            f"mysql+aiomysql://{self.DB_USER}:{self.DB_PASSWORD}"
+            f"mysql+aiomysql://{self.DB_USER}:{password}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}?charset=utf8mb4"
         )
 
     @property
     def REDIS_URL(self) -> str:
         if self.REDIS_PASSWORD:
-            return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+            password = quote_plus(self.REDIS_PASSWORD)
+            return f"redis://:{password}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
