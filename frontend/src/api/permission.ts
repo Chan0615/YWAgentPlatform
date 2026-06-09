@@ -4,11 +4,11 @@ export interface PermissionRecord {
   id: number
   name: string
   code: string
-  type: 'menu' | 'button' | 'api'
-  parent_id: number
-  path: string
-  icon: string
-  sort: number
+  type: 'app' | 'menu' | 'button'
+  parent_id: number | null
+  path: string | null
+  icon: string | null
+  sort_order: number
   status: number
   children?: PermissionRecord[]
   created_at: string
@@ -17,11 +17,11 @@ export interface PermissionRecord {
 export interface CreatePermissionParams {
   name: string
   code: string
-  type: 'menu' | 'button' | 'api'
-  parent_id: number
+  type: 'app' | 'menu' | 'button'
+  parent_id?: number | null
   path?: string
   icon?: string
-  sort?: number
+  sort_order?: number
   status: number
 }
 
@@ -29,20 +29,20 @@ export interface UpdatePermissionParams {
   id: number
   name?: string
   code?: string
-  type?: 'menu' | 'button' | 'api'
-  parent_id?: number
+  type?: 'app' | 'menu' | 'button'
+  parent_id?: number | null
   path?: string
   icon?: string
-  sort?: number
+  sort_order?: number
   status?: number
 }
 
 export function getPermissionTreeApi() {
-  return request.get<unknown, { data: { list: PermissionRecord[] } }>('/permissions/tree')
+  return request.get<unknown, PermissionRecord[]>('/permissions/tree')
 }
 
 export function getPermissionListApi() {
-  return request.get<unknown, { data: { list: PermissionRecord[] } }>('/permissions')
+  return request.get<unknown, PermissionRecord[]>('/permissions')
 }
 
 export function createPermissionApi(data: CreatePermissionParams) {

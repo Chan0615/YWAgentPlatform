@@ -1,11 +1,10 @@
-from datetime import datetime
-
 from sqlalchemy import (
     Column, Integer, String, DateTime, SmallInteger, Table, ForeignKey
 )
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
+from app.utils.datetime import now_cn
 
 # Association table for User <-> Role many-to-many
 user_roles = Table(
@@ -27,9 +26,9 @@ class User(Base):
     phone = Column(String(20), nullable=True, comment="Phone number")
     avatar = Column(String(512), nullable=True, comment="Avatar URL")
     status = Column(SmallInteger, nullable=False, default=1, comment="1=active, 0=disabled")
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, comment="Created timestamp")
+    created_at = Column(DateTime, nullable=False, default=now_cn, comment="Created timestamp")
     updated_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow, comment="Updated timestamp"
+        DateTime, nullable=False, default=now_cn, onupdate=now_cn, comment="Updated timestamp"
     )
 
     # Relationships

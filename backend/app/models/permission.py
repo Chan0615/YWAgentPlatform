@@ -1,9 +1,8 @@
-from datetime import datetime
-
 from sqlalchemy import Column, Integer, String, DateTime, SmallInteger
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
+from app.utils.datetime import now_cn
 
 
 class Permission(Base):
@@ -18,7 +17,7 @@ class Permission(Base):
     icon = Column(String(64), nullable=True, comment="Icon name for menu/app")
     sort_order = Column(Integer, nullable=False, default=0, comment="Sort order for display")
     status = Column(SmallInteger, nullable=False, default=1, comment="1=active, 0=disabled")
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, comment="Created timestamp")
+    created_at = Column(DateTime, nullable=False, default=now_cn, comment="Created timestamp")
 
     # Relationships
     roles = relationship("Role", secondary="role_permissions", back_populates="permissions", lazy="selectin")

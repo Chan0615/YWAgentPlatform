@@ -5,7 +5,7 @@ export interface RoleRecord {
   name: string
   code: string
   description: string
-  permissions: number[]
+  permissions: Array<{ id: number; name: string; code: string; type: string }>
   status: number
   created_at: string
 }
@@ -13,14 +13,13 @@ export interface RoleRecord {
 export interface RoleListParams {
   page?: number
   page_size?: number
-  keyword?: string
+  name?: string
 }
 
 export interface CreateRoleParams {
   name: string
   code: string
   description: string
-  permissions: number[]
   status: number
 }
 
@@ -29,16 +28,22 @@ export interface UpdateRoleParams {
   name?: string
   code?: string
   description?: string
-  permissions?: number[]
   status?: number
 }
 
+export interface RoleListResult {
+  total: number
+  page: number
+  page_size: number
+  items: RoleRecord[]
+}
+
 export function getRoleListApi(params?: RoleListParams) {
-  return request.get<unknown, { data: { list: RoleRecord[]; total: number } }>('/roles', { params })
+  return request.get<unknown, RoleListResult>('/roles', { params })
 }
 
 export function getRoleDetailApi(id: number) {
-  return request.get<unknown, { data: RoleRecord }>(`/roles/${id}`)
+  return request.get<unknown, RoleRecord>(`/roles/${id}`)
 }
 
 export function createRoleApi(data: CreateRoleParams) {
@@ -54,5 +59,5 @@ export function deleteRoleApi(id: number) {
 }
 
 export function assignPermissionsApi(roleId: number, permissionIds: number[]) {
-  return request.put(`/roles/${roleId}/permissions`, { permission_ids: permissionIds })
+  return request.post(`/roles/${roleId}/permissions`, { permission_ids: permissionIds })
 }

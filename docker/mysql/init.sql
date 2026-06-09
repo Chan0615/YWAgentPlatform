@@ -129,7 +129,8 @@ INSERT INTO `permissions` (`id`, `parent_id`, `name`, `code`, `type`, `path`, `i
 (21, 20, '用户管理', 'menu:system:user', 'menu', '/system/users', 'UserOutlined', 1),
 (22, 20, '角色管理', 'menu:system:role', 'menu', '/system/roles', 'TeamOutlined', 2),
 (23, 20, '权限管理', 'menu:system:permission', 'menu', '/system/permissions', 'SafetyOutlined', 3),
-(24, 20, '审计日志', 'menu:system:audit', 'menu', '/system/audit-log', 'FileSearchOutlined', 4);
+(24, 20, '审计日志', 'menu:system:audit', 'menu', '/system/audit-log', 'FileSearchOutlined', 4),
+(25, 20, '应用管理', 'menu:application', 'menu', '/system/applications', 'AppstoreAddOutlined', 5);
 
 -- 按钮级权限 (用户管理)
 INSERT INTO `permissions` (`parent_id`, `name`, `code`, `type`, `sort_order`) VALUES
@@ -148,10 +149,10 @@ INSERT INTO `permissions` (`parent_id`, `name`, `code`, `type`, `sort_order`) VA
 
 -- 按钮级权限 (应用管理)
 INSERT INTO `permissions` (`parent_id`, `name`, `code`, `type`, `sort_order`) VALUES
-(11, '注册应用', 'btn:app:create', 'button', 1),
-(11, '编辑应用', 'btn:app:edit', 'button', 2),
-(11, '删除应用', 'btn:app:delete', 'button', 3),
-(11, '启用/禁用应用', 'btn:app:toggle', 'button', 4);
+(25, '注册应用', 'btn:application:create', 'button', 1),
+(25, '编辑应用', 'btn:application:edit', 'button', 2),
+(25, '删除应用', 'btn:application:delete', 'button', 3),
+(25, '启用/禁用应用', 'btn:application:toggle', 'button', 4);
 
 -- 超级管理员角色分配所有权限
 INSERT INTO `role_permissions` (`role_id`, `permission_id`)
@@ -167,9 +168,3 @@ SELECT 3, id FROM `permissions` WHERE `code` IN ('app:agent', 'menu:dashboard', 
 
 -- 管理员用户分配超级管理员角色
 INSERT INTO `user_roles` (`user_id`, `role_id`) VALUES (1, 1);
-
--- 注册默认应用
-INSERT INTO `applications` (`name`, `code`, `description`, `url`, `icon`, `sort_order`) VALUES
-('AgenticOps 智能运维', 'cmdb', 'AI驱动的智能运维平台，包含资产管理、知识库、NL2SQL等功能', '/app/cmdb/', 'CloudServerOutlined', 1),
-('Agent 自动化平台', 'agent', '多Agent IT运维自动化平台，支持工作流编排、SSH终端、告警处理', '/app/agent/', 'RobotOutlined', 2),
-('Daily 数据工具', 'daily', '游戏运营数据查询与处理工具集', '/app/daily/', 'DatabaseOutlined', 3);

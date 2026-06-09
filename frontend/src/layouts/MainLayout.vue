@@ -49,6 +49,10 @@
             <template #icon><SafetyOutlined /></template>
             <span>权限管理</span>
           </a-menu-item>
+          <a-menu-item key="/system/applications">
+            <template #icon><AppstoreAddOutlined /></template>
+            <span>应用管理</span>
+          </a-menu-item>
           <a-menu-item key="/system/audit-log">
             <template #icon><FileSearchOutlined /></template>
             <span>审计日志</span>
@@ -117,6 +121,7 @@ import { useAppStore } from '@/store/app'
 import {
   DashboardOutlined,
   AppstoreOutlined,
+  AppstoreAddOutlined,
   SettingOutlined,
   UserOutlined,
   TeamOutlined,
@@ -145,6 +150,7 @@ const menuTitleMap: Record<string, string> = {
   '/system/users': '用户管理',
   '/system/roles': '角色管理',
   '/system/permissions': '权限管理',
+  '/system/applications': '应用管理',
   '/system/audit-log': '审计日志',
 }
 

@@ -4,13 +4,13 @@ export interface ApplicationRecord {
   id: number
   name: string
   code: string
-  icon: string
-  description: string
+  icon: string | null
+  description: string | null
   url: string
   status: number
-  permission: string
-  sort: number
+  sort_order: number
   created_at: string
+  updated_at?: string
 }
 
 export interface ApplicationListParams {
@@ -23,11 +23,10 @@ export interface ApplicationListParams {
 export interface CreateApplicationParams {
   name: string
   code: string
-  icon: string
-  description: string
+  icon?: string
+  description?: string
   url: string
-  permission: string
-  sort: number
+  sort_order: number
   status: number
 }
 
@@ -38,13 +37,23 @@ export interface UpdateApplicationParams {
   icon?: string
   description?: string
   url?: string
-  permission?: string
-  sort?: number
+  sort_order?: number
   status?: number
 }
 
-export function getApplicationListApi(params?: ApplicationListParams) {
+export interface ApplicationListResult {
+  total: number
+  page: number
+  page_size: number
+  items: ApplicationRecord[]
+}
+
+export function getVisibleApplicationListApi() {
   return request.get<unknown, ApplicationRecord[]>('/applications/visible')
+}
+
+export function getApplicationListApi(params?: ApplicationListParams) {
+  return request.get<unknown, ApplicationListResult>('/applications', { params })
 }
 
 export function getApplicationDetailApi(id: number) {

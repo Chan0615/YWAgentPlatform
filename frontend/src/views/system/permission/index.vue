@@ -35,7 +35,7 @@
           <template v-if="column.dataIndex === 'name'">
             <span>
               <FolderOutlined v-if="record.type === 'menu'" style="margin-right: 6px; color: #1890ff;" />
-              <ApiOutlined v-else-if="record.type === 'api'" style="margin-right: 6px; color: #52c41a;" />
+              <ApiOutlined v-else-if="record.type === 'app'" style="margin-right: 6px; color: #52c41a;" />
               <LockOutlined v-else style="margin-right: 6px; color: #faad14;" />
               {{ record.name }}
             </span>
@@ -122,7 +122,7 @@
               <a-select v-model:value="formState.type" placeholder="请选择类型">
                 <a-select-option value="menu">菜单</a-select-option>
                 <a-select-option value="button">按钮</a-select-option>
-                <a-select-option value="api">接口</a-select-option>
+                <a-select-option value="app">应用</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -190,11 +190,11 @@ const formState = reactive({
   id: 0,
   name: '',
   code: '',
-  type: 'menu' as 'menu' | 'button' | 'api',
-  parent_id: 0,
+  type: 'menu' as 'app' | 'menu' | 'button',
+  parent_id: null as number | null,
   path: '',
   icon: '',
-  sort: 0,
+  sort_order: 0,
   status: 1,
 })
 
@@ -209,18 +209,18 @@ const columns = [
   { title: '权限编码', dataIndex: 'code', width: 220 },
   { title: '类型', dataIndex: 'type', width: 100 },
   { title: '路径', dataIndex: 'path', width: 180 },
-  { title: '排序', dataIndex: 'sort', width: 80 },
+  { title: '排序', dataIndex: 'sort_order', width: 80 },
   { title: '状态', dataIndex: 'status', width: 100 },
   { title: '操作', dataIndex: 'actions', width: 240, fixed: 'right' as const },
 ]
 
 function getTypeColor(type: string): string {
-  const map: Record<string, string> = { menu: 'blue', button: 'orange', api: 'green' }
+  const map: Record<string, string> = { menu: 'blue', button: 'orange', app: 'green' }
   return map[type] || 'default'
 }
 
 function getTypeLabel(type: string): string {
-  const map: Record<string, string> = { menu: '菜单', button: '按钮', api: '接口' }
+  const map: Record<string, string> = { menu: '菜单', button: '按钮', app: '应用' }
   return map[type] || type
 }
 
@@ -257,7 +257,7 @@ async function fetchData() {
   loading.value = true
   try {
     const res = await getPermissionTreeApi()
-    treeData.value = res.items || []
+    treeData.value = res || []
     parentOptions.value = treeData.value
   } finally {
     loading.value = false
@@ -271,10 +271,10 @@ function handleCreate(parentId?: number) {
     name: '',
     code: '',
     type: 'menu',
-    parent_id: parentId || 0,
+    parent_id: parentId ?? null,
     path: '',
     icon: '',
-    sort: 0,
+    sort_order: 0,
     status: 1,
   })
   modalVisible.value = true
@@ -290,7 +290,7 @@ function handleEdit(record: PermissionRecord) {
     parent_id: record.parent_id,
     path: record.path,
     icon: record.icon,
-    sort: record.sort,
+    sort_order: record.sort_order,
     status: record.status,
   })
   modalVisible.value = true
@@ -306,10 +306,29 @@ async function handleSubmit() {
   submitLoading.value = true
   try {
     if (isEdit.value) {
-      await updatePermissionApi(formState)
+      await updatePermissionApi({
+        id: formState.id,
+        name: formState.name,
+        code: formState.code,
+        type: formState.type,
+        parent_id: formState.parent_id,
+        path: formState.path,
+        icon: formState.icon,
+        sort_order: formState.sort_order,
+        status: formState.status,
+      })
       message.success('更新成功')
     } else {
-      await createPermissionApi(formState)
+      await createPermissionApi({
+        name: formState.name,
+        code: formState.code,
+        type: formState.type,
+        parent_id: formState.parent_id,
+        path: formState.path,
+        icon: formState.icon,
+        sort_order: formState.sort_order,
+        status: formState.status,
+      })
       message.success('创建成功')
     }
     modalVisible.value = false

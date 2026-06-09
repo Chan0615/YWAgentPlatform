@@ -40,6 +40,9 @@
               :text="record.status === 1 ? '启用' : '禁用'"
             />
           </template>
+          <template v-if="column.dataIndex === 'created_at'">
+            {{ formatTime(record.created_at) }}
+          </template>
           <template v-if="column.dataIndex === 'actions'">
             <a-space>
               <a-button
@@ -51,7 +54,7 @@
                 编辑
               </a-button>
               <a-button
-                v-permission="'btn:role:assign'"
+                v-permission="'btn:role:assign-perm'"
                 type="link"
                 size="small"
                 @click="handleAssignPermissions(record)"
@@ -155,6 +158,7 @@ import { PlusOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import type { FormInstance, TablePaginationConfig } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
+import dayjs from 'dayjs'
 import {
   getRoleListApi,
   createRoleApi,
@@ -212,13 +216,17 @@ const columns = [
   { title: '操作', dataIndex: 'actions', width: 240, fixed: 'right' as const },
 ]
 
+function formatTime(time: string): string {
+  return dayjs(time).format('YYYY-MM-DD HH:mm:ss')
+}
+
 async function fetchData() {
   loading.value = true
   try {
     const res = await getRoleListApi({
       page: pagination.current,
       page_size: pagination.pageSize,
-      keyword: searchKeyword.value || undefined,
+        name: searchKeyword.value || undefined,
     })
     dataList.value = res.items || []
     pagination.total = res.total
@@ -269,7 +277,7 @@ async function handleSubmit() {
       await updateRoleApi(formState)
       message.success('更新成功')
     } else {
-      await createRoleApi({ ...formState, permissions: [] })
+        await createRoleApi({ ...formState })
       message.success('创建成功')
     }
     modalVisible.value = false
@@ -285,7 +293,7 @@ function resetForm() {
 
 async function handleAssignPermissions(record: RoleRecord) {
   currentRoleId.value = record.id
-  checkedPermKeys.value = record.permissions || []
+  checkedPermKeys.value = (record.permissions || []).map((item) => item.id)
   permDrawerVisible.value = true
   await fetchPermissionTree()
 }
@@ -294,7 +302,7 @@ async function fetchPermissionTree() {
   permLoading.value = true
   try {
     const res = await getPermissionTreeApi()
-    permissionTree.value = res.items || []
+    permissionTree.value = res || []
   } finally {
     permLoading.value = false
   }

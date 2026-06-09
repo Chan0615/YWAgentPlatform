@@ -1,11 +1,10 @@
-from datetime import datetime
-
 from sqlalchemy import (
     Column, Integer, String, DateTime, SmallInteger, Table, ForeignKey
 )
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
+from app.utils.datetime import now_cn
 
 # Association table for Role <-> Permission many-to-many
 role_permissions = Table(
@@ -24,7 +23,7 @@ class Role(Base):
     code = Column(String(64), unique=True, nullable=False, index=True, comment="Role code for programmatic use")
     description = Column(String(256), nullable=True, comment="Role description")
     status = Column(SmallInteger, nullable=False, default=1, comment="1=active, 0=disabled")
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, comment="Created timestamp")
+    created_at = Column(DateTime, nullable=False, default=now_cn, comment="Created timestamp")
 
     # Relationships
     users = relationship("User", secondary="user_roles", back_populates="roles", lazy="selectin")

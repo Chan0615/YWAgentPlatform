@@ -19,17 +19,16 @@
               allow-clear
               style="width: 140px"
             >
-              <a-select-option value="CREATE">创建</a-select-option>
-              <a-select-option value="UPDATE">更新</a-select-option>
-              <a-select-option value="DELETE">删除</a-select-option>
-              <a-select-option value="LOGIN">登录</a-select-option>
-              <a-select-option value="LOGOUT">登出</a-select-option>
-              <a-select-option value="EXPORT">导出</a-select-option>
+              <a-select-option value="create">创建</a-select-option>
+              <a-select-option value="update">更新</a-select-option>
+              <a-select-option value="delete">删除</a-select-option>
+              <a-select-option value="login">登录</a-select-option>
+              <a-select-option value="logout">登出</a-select-option>
             </a-select>
           </a-form-item>
           <a-form-item label="资源">
             <a-input
-              v-model:value="searchParams.resource"
+              v-model:value="searchParams.resource_type"
               placeholder="资源类型"
               allow-clear
               style="width: 150px"
@@ -104,9 +103,9 @@ const dateRange = ref<[Dayjs, Dayjs] | null>(null)
 const searchParams = reactive({
   username: '',
   action: undefined as string | undefined,
-  resource: '',
-  start_time: '',
-  end_time: '',
+  resource_type: '',
+  start_date: '',
+  end_date: '',
 })
 
 const pagination = reactive({
@@ -121,23 +120,22 @@ const pagination = reactive({
 const columns = [
   { title: '用户', dataIndex: 'username', width: 120 },
   { title: '操作', dataIndex: 'action', width: 100 },
-  { title: '资源', dataIndex: 'resource', width: 120 },
+  { title: '资源', dataIndex: 'resource_type', width: 120 },
   { title: '资源ID', dataIndex: 'resource_id', width: 100 },
   { title: '详情', dataIndex: 'detail', width: 300 },
-  { title: 'IP地址', dataIndex: 'ip', width: 140 },
+  { title: 'IP地址', dataIndex: 'ip_address', width: 140 },
   { title: '时间', dataIndex: 'created_at', width: 180 },
 ]
 
 function getActionColor(action: string): string {
   const map: Record<string, string> = {
-    CREATE: 'green',
-    UPDATE: 'blue',
-    DELETE: 'red',
-    LOGIN: 'purple',
-    LOGOUT: 'orange',
-    EXPORT: 'cyan',
+    create: 'green',
+    update: 'blue',
+    delete: 'red',
+    login: 'purple',
+    logout: 'orange',
   }
-  return map[action?.toUpperCase()] || 'default'
+  return map[action?.toLowerCase()] || 'default'
 }
 
 function formatTime(time: string): string {
@@ -146,11 +144,11 @@ function formatTime(time: string): string {
 
 function onDateChange(dates: [Dayjs, Dayjs] | null) {
   if (dates) {
-    searchParams.start_time = dates[0].format('YYYY-MM-DD HH:mm:ss')
-    searchParams.end_time = dates[1].format('YYYY-MM-DD HH:mm:ss')
+    searchParams.start_date = dates[0].format('YYYY-MM-DD')
+    searchParams.end_date = dates[1].format('YYYY-MM-DD')
   } else {
-    searchParams.start_time = ''
-    searchParams.end_time = ''
+    searchParams.start_date = ''
+    searchParams.end_date = ''
   }
 }
 
@@ -162,9 +160,9 @@ async function fetchData() {
       page_size: pagination.pageSize,
       username: searchParams.username || undefined,
       action: searchParams.action || undefined,
-      resource: searchParams.resource || undefined,
-      start_time: searchParams.start_time || undefined,
-      end_time: searchParams.end_time || undefined,
+      resource_type: searchParams.resource_type || undefined,
+      start_date: searchParams.start_date || undefined,
+      end_date: searchParams.end_date || undefined,
     }
     const res = await getAuditLogListApi(params)
     dataList.value = res.items || []
@@ -182,9 +180,9 @@ function handleSearch() {
 function handleReset() {
   searchParams.username = ''
   searchParams.action = undefined
-  searchParams.resource = ''
-  searchParams.start_time = ''
-  searchParams.end_time = ''
+  searchParams.resource_type = ''
+  searchParams.start_date = ''
+  searchParams.end_date = ''
   dateRange.value = null
   pagination.current = 1
   fetchData()

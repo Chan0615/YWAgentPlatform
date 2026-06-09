@@ -1,17 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { getApplicationListApi } from '@/api/application'
+import { getVisibleApplicationListApi } from '@/api/application'
 
 export interface AppInfo {
   id: number
   name: string
   code: string
-  icon: string
-  description: string
+  icon: string | null
+  description: string | null
   url: string
   status: number
-  permission: string
-  sort: number
+  permission?: string
+  sort_order: number
 }
 
 export const useAppStore = defineStore('app', () => {
@@ -27,8 +27,11 @@ export const useAppStore = defineStore('app', () => {
   }
 
   async function fetchApplications() {
-    const res = await getApplicationListApi()
-    applications.value = res || []
+    const res = await getVisibleApplicationListApi()
+    applications.value = (res || []).map((app) => ({
+      ...app,
+      permission: `app:${app.code}`,
+    }))
     return applications.value
   }
 

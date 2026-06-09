@@ -6,6 +6,7 @@ from sqlalchemy import select, func
 
 from app.core.database import get_db
 from app.models.application import Application
+from app.models.permission import Permission
 from app.models.user import User
 from app.schemas.application import (
     ApplicationCreate, ApplicationUpdate, ApplicationResponse, ApplicationListResponse,
@@ -85,7 +86,7 @@ async def list_visible_applications(
 @router.get("/{app_id}", response_model=ApplicationResponse)
 async def get_application(
     app_id: int,
-    current_user: User = Depends(require_permissions("menu:application")),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Get a single application by ID."""
@@ -93,6 +94,13 @@ async def get_application(
     app = result.scalar_one_or_none()
     if not app:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
+
+    user_role_codes = [role.code for role in current_user.roles]
+    if "admin" not in user_role_codes:
+        permissions = await get_user_permissions(current_user, db)
+        if f"app:{app.code}" not in permissions:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied")
+
     return ApplicationResponse.model_validate(app)
 
 
@@ -169,6 +177,13 @@ async def delete_application(
     app = result.scalar_one_or_none()
     if not app:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
+
+    permission_result = await db.execute(
+        select(Permission).where(Permission.code == f"app:{app.code}")
+    )
+    permission = permission_result.scalar_one_or_none()
+    if permission:
+        await db.delete(permission)
 
     await db.delete(app)
     await db.flush()

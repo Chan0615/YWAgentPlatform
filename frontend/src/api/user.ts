@@ -6,7 +6,7 @@ export interface UserRecord {
   nickname: string
   email: string
   phone: string
-  roles: string[]
+  roles: Array<{ id: number; name: string; code: string }>
   status: number
   created_at: string
   updated_at: string
@@ -15,7 +15,7 @@ export interface UserRecord {
 export interface UserListParams {
   page?: number
   page_size?: number
-  keyword?: string
+  username?: string
   status?: number
 }
 
@@ -25,7 +25,7 @@ export interface CreateUserParams {
   password: string
   email: string
   phone: string
-  roles: number[]
+  role_ids: number[]
   status: number
 }
 
@@ -34,16 +34,24 @@ export interface UpdateUserParams {
   nickname?: string
   email?: string
   phone?: string
-  roles?: number[]
+  password?: string
+  role_ids?: number[]
   status?: number
 }
 
+export interface UserListResult {
+  total: number
+  page: number
+  page_size: number
+  items: UserRecord[]
+}
+
 export function getUserListApi(params: UserListParams) {
-  return request.get<unknown, { data: { list: UserRecord[]; total: number } }>('/users', { params })
+  return request.get<unknown, UserListResult>('/users', { params })
 }
 
 export function getUserDetailApi(id: number) {
-  return request.get<unknown, { data: UserRecord }>(`/users/${id}`)
+  return request.get<unknown, UserRecord>(`/users/${id}`)
 }
 
 export function createUserApi(data: CreateUserParams) {
@@ -59,5 +67,5 @@ export function deleteUserApi(id: number) {
 }
 
 export function resetPasswordApi(id: number, password: string) {
-  return request.put(`/users/${id}/reset-password`, { password })
+  return request.put(`/users/${id}`, { password })
 }

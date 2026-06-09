@@ -1,8 +1,7 @@
-from datetime import datetime
-
 from sqlalchemy import Column, Integer, String, DateTime, Text
 
 from app.core.database import Base
+from app.utils.datetime import now_cn
 
 
 class AuditLog(Base):
@@ -18,4 +17,4 @@ class AuditLog(Base):
     ip_address = Column(String(64), nullable=True, comment="Client IP address")
     user_agent = Column(String(512), nullable=True, comment="Client User-Agent")
     status = Column(String(16), nullable=False, default="success", comment="Result: success or fail")
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True, comment="Log timestamp")
+    created_at = Column(DateTime, nullable=False, default=now_cn, index=True, comment="Log timestamp")

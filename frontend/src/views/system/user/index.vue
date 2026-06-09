@@ -45,8 +45,8 @@
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'roles'">
-            <a-tag v-for="role in record.roles" :key="role" color="blue">
-              {{ role }}
+            <a-tag v-for="role in record.roles" :key="role.id" color="blue">
+              {{ role.name }}
             </a-tag>
           </template>
           <template v-if="column.dataIndex === 'status'">
@@ -240,7 +240,8 @@ async function fetchData() {
     const res = await getUserListApi({
       page: pagination.current,
       page_size: pagination.pageSize,
-      ...searchParams,
+      username: searchParams.keyword || undefined,
+      status: searchParams.status,
     })
     dataList.value = res.items || []
     pagination.total = res.total
@@ -296,7 +297,7 @@ function handleEdit(record: UserRecord) {
     nickname: record.nickname,
     email: record.email,
     phone: record.phone,
-    roles: [],
+    roles: (record.roles || []).map((role) => role.id),
     status: record.status,
   })
   modalVisible.value = true
@@ -317,12 +318,20 @@ async function handleSubmit() {
         nickname: formState.nickname,
         email: formState.email,
         phone: formState.phone,
-        roles: formState.roles,
+        role_ids: formState.roles,
         status: formState.status,
       })
       message.success('更新成功')
     } else {
-      await createUserApi(formState)
+      await createUserApi({
+        username: formState.username,
+        password: formState.password,
+        nickname: formState.nickname,
+        email: formState.email,
+        phone: formState.phone,
+        role_ids: formState.roles,
+        status: formState.status,
+      })
       message.success('创建成功')
     }
     modalVisible.value = false

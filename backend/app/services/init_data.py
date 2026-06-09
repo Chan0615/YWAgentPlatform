@@ -202,47 +202,6 @@ async def init_admin_user(session, roles: dict):
         print(f"[INIT] Admin user already exists, skipping.")
 
 
-async def init_applications(session):
-    """Create default applications."""
-    apps_data = [
-        {
-            "name": "CMDB",
-            "code": "cmdb",
-            "description": "Configuration Management Database",
-            "url": "https://yw.ops.com/cmdb",
-            "icon": "database",
-            "sort_order": 1,
-        },
-        {
-            "name": "Agent Platform",
-            "code": "agent",
-            "description": "AI Agent Management Platform",
-            "url": "https://yw.ops.com/agent",
-            "icon": "robot",
-            "sort_order": 2,
-        },
-        {
-            "name": "Monitoring",
-            "code": "monitor",
-            "description": "Infrastructure Monitoring",
-            "url": "https://yw.ops.com/monitor",
-            "icon": "monitor",
-            "sort_order": 3,
-        },
-    ]
-
-    for app_data in apps_data:
-        result = await session.execute(
-            select(Application).where(Application.code == app_data["code"])
-        )
-        if not result.scalar_one_or_none():
-            app = Application(**app_data)
-            session.add(app)
-            print(f"[INIT] Created application: {app_data['name']}")
-
-    await session.flush()
-
-
 async def main():
     """Run all initialization steps."""
     print("[INIT] Starting database initialization...")
@@ -260,8 +219,6 @@ async def main():
             print(f"[INIT] Initialized {len(roles)} roles.")
 
             await init_admin_user(session, roles)
-
-            await init_applications(session)
 
             await session.commit()
             print("[INIT] Database initialization completed successfully!")
