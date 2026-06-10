@@ -28,11 +28,11 @@ async def init_permissions(session) -> dict:
 
         # Menu-level permissions - System Management
         {"parent_id": None, "name": "System Management", "code": "menu:system", "type": "menu", "path": "/system", "icon": "setting", "sort_order": 100},
-        {"parent_id": None, "name": "User Management", "code": "menu:user", "type": "menu", "path": "/system/users", "icon": "user", "sort_order": 101},
-        {"parent_id": None, "name": "Role Management", "code": "menu:role", "type": "menu", "path": "/system/roles", "icon": "team", "sort_order": 102},
-        {"parent_id": None, "name": "Permission Management", "code": "menu:permission", "type": "menu", "path": "/system/permissions", "icon": "lock", "sort_order": 103},
+        {"parent_id": None, "name": "User Management", "code": "menu:system:user", "type": "menu", "path": "/system/users", "icon": "user", "sort_order": 101},
+        {"parent_id": None, "name": "Role Management", "code": "menu:system:role", "type": "menu", "path": "/system/roles", "icon": "team", "sort_order": 102},
+        {"parent_id": None, "name": "Permission Management", "code": "menu:system:permission", "type": "menu", "path": "/system/permissions", "icon": "lock", "sort_order": 103},
         {"parent_id": None, "name": "Application Management", "code": "menu:application", "type": "menu", "path": "/system/applications", "icon": "appstore", "sort_order": 104},
-        {"parent_id": None, "name": "Audit Log", "code": "menu:audit", "type": "menu", "path": "/system/audit", "icon": "file-search", "sort_order": 105},
+        {"parent_id": None, "name": "Audit Log", "code": "menu:system:audit", "type": "menu", "path": "/system/audit", "icon": "file-search", "sort_order": 105},
 
         # Button-level permissions - User
         {"parent_id": None, "name": "Create User", "code": "btn:user:create", "type": "button", "path": None, "icon": None, "sort_order": 201},
@@ -43,7 +43,7 @@ async def init_permissions(session) -> dict:
         {"parent_id": None, "name": "Create Role", "code": "btn:role:create", "type": "button", "path": None, "icon": None, "sort_order": 301},
         {"parent_id": None, "name": "Edit Role", "code": "btn:role:edit", "type": "button", "path": None, "icon": None, "sort_order": 302},
         {"parent_id": None, "name": "Delete Role", "code": "btn:role:delete", "type": "button", "path": None, "icon": None, "sort_order": 303},
-        {"parent_id": None, "name": "Assign Permissions", "code": "btn:role:assign_perm", "type": "button", "path": None, "icon": None, "sort_order": 304},
+        {"parent_id": None, "name": "Assign Permissions", "code": "btn:role:assign-perm", "type": "button", "path": None, "icon": None, "sort_order": 304},
 
         # Button-level permissions - Permission
         {"parent_id": None, "name": "Create Permission", "code": "btn:permission:create", "type": "button", "path": None, "icon": None, "sort_order": 401},
@@ -71,21 +71,21 @@ async def init_permissions(session) -> dict:
 
     # Set parent relationships
     menu_parent_map = {
-        "menu:user": "menu:system",
-        "menu:role": "menu:system",
-        "menu:permission": "menu:system",
+        "menu:system:user": "menu:system",
+        "menu:system:role": "menu:system",
+        "menu:system:permission": "menu:system",
         "menu:application": "menu:system",
-        "menu:audit": "menu:system",
-        "btn:user:create": "menu:user",
-        "btn:user:edit": "menu:user",
-        "btn:user:delete": "menu:user",
-        "btn:role:create": "menu:role",
-        "btn:role:edit": "menu:role",
-        "btn:role:delete": "menu:role",
-        "btn:role:assign_perm": "menu:role",
-        "btn:permission:create": "menu:permission",
-        "btn:permission:edit": "menu:permission",
-        "btn:permission:delete": "menu:permission",
+        "menu:system:audit": "menu:system",
+        "btn:user:create": "menu:system:user",
+        "btn:user:edit": "menu:system:user",
+        "btn:user:delete": "menu:system:user",
+        "btn:role:create": "menu:system:role",
+        "btn:role:edit": "menu:system:role",
+        "btn:role:delete": "menu:system:role",
+        "btn:role:assign-perm": "menu:system:role",
+        "btn:permission:create": "menu:system:permission",
+        "btn:permission:edit": "menu:system:permission",
+        "btn:permission:delete": "menu:system:permission",
         "btn:application:create": "menu:application",
         "btn:application:edit": "menu:application",
         "btn:application:delete": "menu:application",

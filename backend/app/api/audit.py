@@ -24,7 +24,7 @@ async def list_audit_logs(
     status: Optional[str] = Query(None),
     start_date: Optional[date] = Query(None),
     end_date: Optional[date] = Query(None),
-    current_user: User = Depends(require_permissions("menu:audit")),
+    current_user: User = Depends(require_permissions("menu:system:audit")),
     db: AsyncSession = Depends(get_db),
 ):
     """List audit logs with filters and pagination. Admin only."""

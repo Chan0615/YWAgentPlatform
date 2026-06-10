@@ -42,7 +42,7 @@ def _build_tree(permissions: List[Permission], parent_id=None) -> List[Permissio
 
 @router.get("/tree", response_model=List[PermissionTreeResponse])
 async def get_permission_tree(
-    current_user: User = Depends(require_permissions("menu:permission")),
+    current_user: User = Depends(require_permissions("menu:system:permission")),
     db: AsyncSession = Depends(get_db),
 ):
     """Get all permissions as a tree structure."""
@@ -53,7 +53,7 @@ async def get_permission_tree(
 
 @router.get("", response_model=List[PermissionResponse])
 async def list_permissions(
-    current_user: User = Depends(require_permissions("menu:permission")),
+    current_user: User = Depends(require_permissions("menu:system:permission")),
     db: AsyncSession = Depends(get_db),
 ):
     """List all permissions flat."""
@@ -65,7 +65,7 @@ async def list_permissions(
 @router.get("/{permission_id}", response_model=PermissionResponse)
 async def get_permission(
     permission_id: int,
-    current_user: User = Depends(require_permissions("menu:permission")),
+    current_user: User = Depends(require_permissions("menu:system:permission")),
     db: AsyncSession = Depends(get_db),
 ):
     """Get a single permission by ID."""

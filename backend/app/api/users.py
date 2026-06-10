@@ -21,7 +21,7 @@ async def list_users(
     page_size: int = Query(20, ge=1, le=100),
     keyword: Optional[str] = Query(None, description="Search username, nickname, or email"),
     status_filter: Optional[int] = Query(None, alias="status"),
-    current_user: User = Depends(require_permissions("menu:user")),
+    current_user: User = Depends(require_permissions("menu:system:user")),
     db: AsyncSession = Depends(get_db),
 ):
     """List users with pagination and optional filters."""
@@ -74,7 +74,7 @@ async def list_users(
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: int,
-    current_user: User = Depends(require_permissions("menu:user")),
+    current_user: User = Depends(require_permissions("menu:system:user")),
     db: AsyncSession = Depends(get_db),
 ):
     """Get a single user by ID."""

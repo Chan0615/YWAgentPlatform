@@ -23,7 +23,7 @@ async def list_roles(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     name: Optional[str] = Query(None),
-    current_user: User = Depends(require_permissions("menu:role")),
+    current_user: User = Depends(require_permissions("menu:system:role")),
     db: AsyncSession = Depends(get_db),
 ):
     """List roles with pagination."""
@@ -67,7 +67,7 @@ async def list_roles(
 @router.get("/{role_id}", response_model=RoleResponse)
 async def get_role(
     role_id: int,
-    current_user: User = Depends(require_permissions("menu:role")),
+    current_user: User = Depends(require_permissions("menu:system:role")),
     db: AsyncSession = Depends(get_db),
 ):
     """Get a single role by ID."""
@@ -219,7 +219,7 @@ async def delete_role(
 async def assign_permissions(
     role_id: int,
     body: AssignPermissionsRequest,
-    current_user: User = Depends(require_permissions("btn:role:assign_perm")),
+    current_user: User = Depends(require_permissions("btn:role:assign-perm")),
     db: AsyncSession = Depends(get_db),
 ):
     """Assign permissions to a role (replaces existing permissions)."""
